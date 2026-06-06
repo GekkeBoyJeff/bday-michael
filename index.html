@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gefeliciteerd Michael 🎉 // LUNA-OS v25.0</title>
+  <meta name="description" content="Officieel verjaardagsprotocol voor Michael Ullers (25). Cadeau gematerialiseerd door de Lunafilament-reactor, omdat het doelwit het 'niet wist' (en wat hij wél wist te duur was)." />
+  <meta name="author" content="Je broer Jeffrey" />
+  <meta name="theme-color" content="#03050c" />
+
+  <!-- Open Graph (voor als je 'm deelt) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Gefeliciteerd Michael 🎉 — 25 jaar, en hij wist het wéér niet" />
+  <meta property="og:description" content="LUNA-OS nam het verjaardagsprotocol over: het doelwit wist niet wat hij wilde, en wat hij wél wist (SSD/RAM) was te duur. Het resultaat: PRAGMATA." />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8E%89%3C/text%3E%3C/svg%3E" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="is-booting">
+
+  <!-- ============ ATMOSFEER-LAGEN ============ -->
+  <canvas id="starfield"></canvas>
+  <div class="atmosphere"></div>
+  <div class="grid-overlay"></div>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="noise"></div>
+
+  <!-- custom cursor -->
+  <div class="cursor-ring"></div>
+  <div class="cursor-dot"></div>
+
+  <!-- ============ BOOT OVERLAY ============ -->
+  <div class="boot" id="boot">
+    <div class="boot__inner">
+      <pre class="boot__log" id="bootLog"></pre>
+      <div class="boot__bar"><span id="bootBarFill"></span></div>
+      <button class="boot__skip" id="bootSkip" data-hover>[ skip // ik heb geen geduld, net als altijd ]</button>
+    </div>
+  </div>
+
+  <!-- ============ HUD / topbar ============ -->
+  <header class="hud">
+    <span class="hud__brand">LUNA-OS</span>
+    <span class="hud__sep">//</span>
+    <span>STATION_MICHAEL</span>
+    <span class="hud__clock" id="clock">--:--:--</span>
+    <span class="hud__status"><i class="dot"></i> verjaardagsprotocol actief</span>
+  </header>
+
+  <!-- scroll progress -->
+  <div class="scroll-progress"><span id="scrollBar"></span></div>
+
+  <main>
+
+    <!-- ============ 1. HERO ============ -->
+    <section class="hero section" id="hero">
+      <div class="wrap">
+        <span class="eyebrow hero__eyebrow" data-reveal>LUNA-OS // verjaardagsprotocol 25.0</span>
+        <h1 class="hero__title">
+          <span class="line"><span class="word" style="animation-delay:.1s">GEFELICITEERD</span></span>
+          <span class="line"><span class="word hero__name glitch" data-text="MICHAEL" style="animation-delay:.28s">MICHAEL</span></span>
+        </h1>
+
+        <div class="hero__age">
+          <span class="hero__age-num" id="ageNum" data-count="25" data-suffix="">0</span>
+          <span class="hero__age-meta">
+            <span>jaar oud</span>
+            <strong>STATUS: JARIG</strong>
+            <span>officieel sinds 3 juni</span>
+            <span>gevierd: vandaag (beter laat dan&nbsp;nooit)</span>
+          </span>
+        </div>
+
+        <p class="hero__sub" data-reveal style="--reveal-delay:.5s">
+          Een kwart eeuw oud, vers gepromoveerd tot teamleider bij de Kruidvat, en op de vraag
+          wat je wilt hebben nog steeds maar één antwoord: <b>"geen idee, ik weet het niet"</b>.
+          (En wéét je het een keer wél, dan is het iets onbetaalbaars.) Scroll maar; je gamet
+          straks toch weer tot 3 uur 's nachts op zolder.
+        </p>
+      </div>
+      <div class="scroll-cue">scroll om te ontcijferen<span class="bar"></span></div>
+    </section>
+
+    <!-- ============ 2. DOSSIER ============ -->
+    <section class="section" id="dossier">
+      <div class="wrap">
+        <span class="eyebrow" data-reveal>Subject dossier // geclassificeerd (niet echt)</span>
+        <h2 class="section-title" data-reveal>WIE IS HET <span class="accent-c">DOELWIT</span></h2>
+        <p class="section-lead" data-reveal>
+          Het systeem heeft een volledige scan uitgevoerd. De resultaten waren
+          grotendeels voorspelbaar.
+        </p>
+
+        <div class="dossier-grid">
+          <!-- FOTO-SLOT: assets/michael.png. Geen foto? → sci-fi placeholder. -->
+          <div class="dossier-photo" data-reveal>
+            <div class="scan panel">
+              <img id="subjectPhoto" src="assets/michael.png" alt="Subject: Michael" />
+              <div class="scan__placeholder" id="scanPlaceholder">
+                <div class="silhouette"></div>
+                <div>// geen beeld geladen<br />subject weigert te poseren<br />(of zegt "doe maar dinges")</div>
+              </div>
+              <div class="scan__line"></div>
+              <span class="scan__corner tl"></span><span class="scan__corner tr"></span>
+              <span class="scan__corner bl"></span><span class="scan__corner br"></span>
+              <div class="scan__hud"><span>SUBJ_001 // "KECH"</span><span id="scanId">SCANNING…</span></div>
+            </div>
+
+            <!-- banaan-callback (gekoppeld aan de foto) -->
+            <div class="scan-note">
+              <span class="tag">⚠ scan-detectie // object herkend</span>
+              Nep-banaan (rubber, verdacht zwaar) gedetecteerd in mond van subject.
+              <b>Herkomst getraceerd:</b> cadeau van operator, ±2 jaar geleden.
+              Status: nóg steeds trots in gebruik. Dat is, eerlijk gezegd, meer waardering
+              dan de meeste échte cadeaus ooit krijgen. Petje af, broertje.
+            </div>
+          </div>
+
+          <div class="dossier-data">
+            <div class="panel" data-reveal style="--reveal-delay:.1s">
+              <span class="panel__tag">specificaties</span>
+              <dl class="spec-list">
+                <div class="row"><dt>Naam</dt><dd>Michael Ullers</dd></div>
+                <div class="row"><dt>Alias</dt><dd>"kech" <span class="hl">(familie-uitgave, uitsluitend met liefde)</span></dd></div>
+                <div class="row"><dt>Leeftijd</dt><dd>25 <span class="hl">(update 24 → 25 geslaagd)</span></dd></div>
+                <div class="row"><dt>Beroep</dt><dd>teamleider @ Kruidvat <span class="hl">(voorheen kassa-legende @ Albert Heijn)</span></dd></div>
+                <div class="row"><dt>Werk-modus</dt><dd>roept sinds de promotie standaard <span class="hl">"1 plus 1 gratis, man"</span></dd></div>
+                <div class="row"><dt>Habitat</dt><dd>de zolder — zie neveneffect</dd></div>
+                <div class="row"><dt>Bekend neveneffect</dt><dd>de <span class="hl">zoldervloek</span>: langdurig op zolder slapen → geleidelijke buik-expansie. Wetenschappelijk onbewezen, familiair bevestigd.</dd></div>
+                <div class="row"><dt>Vocabulaire</dt><dd>valt terug op <span class="hl">"dinges"</span> zodra een woord even niet komt</dd></div>
+                <div class="row"><dt>Cadeaubeleid</dt><dd>standaardantwoord: <span class="hl">"ik weet het niet"</span></dd></div>
+                <div class="row"><dt>Uitzondering</dt><dd>wéét hij het wél, dan is het te duur: <span class="hl">een SSD of RAM</span> — prijzen de pan uit sinds AI alles opkocht</dd></div>
+                <div class="row"><dt>Bedreigingsniveau</dt><dd>laag (tenzij je tussen hem en de Doritos gaat staan)</dd></div>
+              </dl>
+            </div>
+
+            <div class="stat-grid">
+              <div class="stat panel" data-reveal>
+                <div class="stat__num" data-count="25">0</div>
+                <div class="stat__label">jaar succesvol geladen</div>
+              </div>
+              <div class="stat panel" data-reveal style="--reveal-delay:.08s">
+                <div class="stat__num amber" data-count="0">0</div>
+                <div class="stat__label">bruikbare cadeauhints ontvangen</div>
+              </div>
+              <div class="stat panel" data-reveal style="--reveal-delay:.16s">
+                <div class="stat__num magenta" data-count="5247">0</div>
+                <div class="stat__label">keer "dinges" gezegd (lopende schatting)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. DILEMMA ============ -->
+    <section class="section" id="dilemma">
+      <div class="wrap">
+        <span class="eyebrow accent-a" data-reveal>Foutrapport // jaarlijks terugkerend</span>
+        <h2 class="section-title" data-reveal>HET CADEAU-<span class="accent-m">DILEMMA</span></h2>
+
+        <div class="dilemma-grid">
+          <div class="dilemma-copy" data-reveal>
+            <p>
+              Elk jaar weer hetzelfde ritueel. We vragen het netjes. We geven ruimte voor
+              input. We bieden zelfs <b>meerkeuze</b> aan.
+            </p>
+            <p>
+              En elk jaar weer hetzelfde resultaat: hij <b class="accent-m">weet het niet</b>.
+              En in het zeldzame geval dat hij het wél weet, blijkt het iets onbetaalbaars —
+              een <b class="accent-c">SSD of meer RAM</b>, waarvan de prijzen sinds de AI-hausse
+              richting de maan zijn geschoten. Toepasselijk, gezien waar dit cadeau zich afspeelt.
+            </p>
+            <p>
+              Dus werd, na uitvoerig beraad (lees: zuchten), het
+              <b class="accent-c">noodprotocol "Broer Beslist"</b> geactiveerd.
+            </p>
+          </div>
+
+          <div class="chatlog panel" data-reveal style="--reveal-delay:.12s">
+            <span class="panel__tag">transcript // jaar na jaar</span>
+            <div class="bubble me"><span class="who">operator (ik)</span>Hey, wat wil je eigenlijk voor je verjaardag?</div>
+            <div class="bubble him"><span class="who">michael</span>Geen idee man, ik weet het niet</div>
+            <div class="bubble me"><span class="who">operator (ik)</span>Oké… denk even na. Echt íéts?</div>
+            <div class="bubble him"><span class="who">michael</span>Nou… misschien een SSD. Of meer RAM</div>
+            <div class="bubble me"><span class="who">operator (ik)</span>…die kosten nu een nier per gigabyte. Bedankt, AI.</div>
+            <div class="bubble him"><span class="who">michael</span>OH WACHT MISCHIEN EHHH… dinges...</div>
+            <div class="bubble sys">⚠ FOUT — wens onbekend OF onbetaalbaar. Noodprotocol "Broer Beslist" geactiveerd.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4. GIFT REVEAL ============ -->
+    <section class="section gift" id="gift">
+      <div class="gift__bg"></div>
+      <div class="wrap">
+        <span class="eyebrow" data-reveal>Output // het cadeau materialiseert</span>
+        <h2 class="section-title" data-reveal>DE <span class="accent-a">LUNAFILAMENT</span>-REACTOR</h2>
+        <p class="section-lead" data-reveal style="margin-inline:auto;">
+          In <b class="accent-c">PRAGMATA</b> kun je met "Lunafilament" zowat alles 3D-printen —
+          mits je over de juiste data beschikt. Wij hadden geen data (input: "ik weet het niet"),
+          en het enige concrete verzoek was te duur. Dus de reactor heeft het zélf maar
+          uitgezocht. Even geduld…
+        </p>
+
+        <div class="reactor" id="reactor" data-reveal>
+          <div class="reactor__bar"><span id="reactorFill"></span></div>
+          <div class="reactor__status" id="reactorStatus">// reactor in slaapstand…</div>
+        </div>
+
+        <article class="gift-card" id="giftCard">
+          <div class="gift-banner">
+            <img id="giftBanner" src="assets/pragmata-header.jpg" alt="PRAGMATA — Capcom key-art" />
+            <div class="gift-banner__fallback"><span class="logo">PRAGMATA<small>CAPCOM</small></span></div>
+            <div class="moon"></div>
+          </div>
+          <div class="gift-body">
+            <h3 class="gift-name" id="giftName">—</h3>
+            <p class="gift-tagline">"Wherever you go, I'll be there."</p>
+            <p class="gift-desc">
+              Een sci-fi actie-avontuur van <b>Capcom</b>. Spacefarer <b>Hugh</b> en de
+              mysterieuze android <b>Diana</b> zitten vast op een verlaten maanstation dat is
+              overgenomen door een vijandige AI. Jij bestuurt ze allebei tegelijk: Hugh schiet,
+              Diana hackt de vijanden open. Samenwerken dus — een concept dat je dit jaar op
+              cadeaugebied duidelijk niet wist toe te passen.
+            </p>
+            <div class="gift-meta">
+              <span class="chip c">Capcom</span>
+              <span class="chip">Sci-fi actie</span>
+              <span class="chip">Maanstation</span>
+              <span class="chip a">97% positief</span>
+              <span class="chip a">release 17 apr 2026</span>
+            </div>
+            <a class="btn" id="steamBtn" href="https://store.steampowered.com/app/3357650/PRAGMATA/" target="_blank" rel="noopener" data-hover>
+              ▶ Bekijk je cadeau op Steam
+            </a>
+            <p class="gift-fineprint">* Helaas geen 1 plus 1 gratis, man. Eén exemplaar per jarige.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ 5. WAAROM ============ -->
+    <section class="section" id="why">
+      <div class="wrap">
+        <span class="eyebrow" data-reveal>Rechtvaardiging // waarom uitgerekend dit</span>
+        <h2 class="section-title" data-reveal>WAAROM <span class="accent-c">PRAGMATA</span></h2>
+        <p class="section-lead" data-reveal>
+          Voor het geval je twijfelt aan de keuze die jij zelf hebt geweigerd te maken,
+          hier de onderbouwing van het comité.
+        </p>
+
+        <div class="why-grid">
+          <div class="why-card" data-reveal>
+            <span class="idx">// 01</span>
+            <h3>Het gaat over ontsnappen</h3>
+            <p>Hugh en Diana proberen te ontsnappen van de maan. Jij ontsnapt al 25 jaar aan de simpele vraag "wat wil je hebben?". Thematisch dus zéér herkenbaar materiaal.</p>
+          </div>
+          <div class="why-card" data-reveal style="--reveal-delay:.08s">
+            <span class="idx">// 02</span>
+            <h3>Twee personages, één brein</h3>
+            <p>Je stuurt Hugh én Diana tegelijk aan — schieten én hacken in één beweging. Multitasken op hoog niveau. Iets wat je bij het uitkiezen van cadeaus aantoonbaar niet beheerst.</p>
+          </div>
+          <div class="why-card" data-reveal style="--reveal-delay:.16s">
+            <span class="idx">// 03</span>
+            <h3>Het is van Capcom</h3>
+            <p>De makers van Resident Evil en Monster Hunter. 97% van de Steam-reviews is positief. Statistisch gezien een véél veiligere gok dan jou laten beslissen.</p>
+          </div>
+          <div class="why-card" data-reveal>
+            <span class="idx">// 04</span>
+            <h3>Je gamet jezelf tóch al een ongeluk</h3>
+            <p>Assassin's Creed, Genshin Impact, Crimson Desert — tot diep in de nacht, op zolder. PRAGMATA past naadloos in die toch al licht zorgwekkende levensstijl. Beschouw het als brandstof voor de zoldervloek.</p>
+          </div>
+          <div class="why-card" data-reveal style="--reveal-delay:.08s">
+            <span class="idx">// 05</span>
+            <h3>Je bent tóch al een halve weeb</h3>
+            <p>Je droeg een Seven Deadly Sins-shirt op je eigen verjaardag, mét een nep-katana binnen handbereik. Een Japanse sci-fi game van Capcom is dus, statistisch gezien, exact jouw smaak.</p>
+          </div>
+          <div class="why-card" data-reveal style="--reveal-delay:.16s">
+            <span class="idx">// 06</span>
+            <h3>Geen banaan, geen onbetaalbare RAM</h3>
+            <p>Je kreeg van mij ooit al een rubberen banaan (die je blijkbaar nog dagelijks gebruikt). Een SSD of RAM kost dankzij AI inmiddels meer dan een kleine auto. Dit is het gulden midden: een écht cadeau dat je maandenlang gaat gebruiken, en dat geen rubber is. Graag gedaan.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. OUTRO ============ -->
+    <section class="section outro" id="outro">
+      <div class="wrap">
+        <span class="eyebrow" data-reveal style="justify-content:center;">// einde transmissie</span>
+        <h2 class="section-title" data-reveal>FIJNE VERJAARDAG,<br /><span class="accent-m">MICHAEL</span></h2>
+
+        <p class="outro__msg" data-reveal style="--reveal-delay:.15s">
+          Even serieus, tussen alle sarcasme door: <span class="accent-m">gefeliciteerd met je 25e, broertje.</span>
+          Kassa-legende geworden, doorgegroeid tot teamleider, en uitgegroeid tot iemand die ik
+          voor geen goud had willen missen — ook al maak je het kiezen van een cadeau elk jaar
+          onnodig ingewikkeld. Geniet van PRAGMATA, kom af en toe van die zolder af, en zeg
+          volgend jaar gewoon even wat je wilt. "Ik weet het niet" en "dinges" tellen allebei niet.
+        </p>
+
+        <button class="party-btn" id="partyBtn" data-hover>🎉 Laat het feest los</button>
+
+        <p class="outro__sign" data-reveal>// met liefde en lichte irritatie — <b>je broer Jeffrey</b></p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    LUNA-OS v25.0 &nbsp;•&nbsp; gebouwd met te veel moeite door <b>één broer</b> &nbsp;•&nbsp;
+    geen sokken werden geschonken tijdens deze productie &nbsp;•&nbsp;
+    <span id="konamiHint">tip: probeer eens ↑↑↓↓←→←→BA</span>
+  </footer>
+
+  <canvas id="confetti"></canvas>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
