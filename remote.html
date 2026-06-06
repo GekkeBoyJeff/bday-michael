@@ -19,61 +19,68 @@
   <div class="rc">
 
     <header class="rc__head">
-      <div class="rc__brand">LUNA-OS<small>afstandsbediening</small></div>
-      <div class="rc__status is-off" id="status"><span class="dot"></span><span id="statusText">niet verbonden</span></div>
+      <div class="rc__brand">LUNA-OS<small data-i18n="rc.brand.sub">afstandsbediening</small></div>
+      <div class="rc__head-right">
+        <div class="rc__status is-off" id="status"><span class="dot"></span><span id="statusText" data-i18n="rc.status.init">niet verbonden</span></div>
+        <div class="rc__lang">
+          <button data-lang-btn="nl">NL</button>
+          <button data-lang-btn="en">EN</button>
+        </div>
+      </div>
     </header>
 
     <!-- room-code (alleen nodig als 'ie niet via QR/link is meegegeven) -->
     <div class="group" id="roomGroup">
-      <span class="group__label">koppelen met scherm</span>
+      <span class="group__label" data-i18n="rc.group.pair">koppelen met scherm</span>
       <div class="room">
         <input id="roomInput" maxlength="4" inputmode="latin" autocapitalize="characters" placeholder="CODE" />
-        <button id="roomBtn">verbind</button>
+        <button id="roomBtn" data-i18n="rc.room.btn">verbind</button>
       </div>
     </div>
 
     <!-- sectie-navigatie -->
     <div class="group">
-      <span class="group__label">ga naar sectie</span>
+      <span class="group__label" data-i18n="rc.group.sections">ga naar sectie</span>
       <div class="btn-grid">
-        <button class="tbtn" data-goto="hero">🚀 Start</button>
-        <button class="tbtn" data-goto="dossier">🛰️ Dossier</button>
-        <button class="tbtn" data-goto="dilemma">⚠️ Dilemma</button>
-        <button class="tbtn" data-goto="gift">🎁 Cadeau</button>
-        <button class="tbtn" data-goto="why">💡 Waarom</button>
-        <button class="tbtn" data-goto="outro">🎂 Slot</button>
+        <button class="tbtn" data-goto="hero" data-i18n="rc.sec.hero">🚀 Start</button>
+        <button class="tbtn" data-goto="dossier" data-i18n="rc.sec.dossier">🛰️ Dossier</button>
+        <button class="tbtn" data-goto="dilemma" data-i18n="rc.sec.dilemma">⚠️ Dilemma</button>
+        <button class="tbtn" data-goto="gift" data-i18n="rc.sec.gift">🎁 Cadeau</button>
+        <button class="tbtn" data-goto="why" data-i18n="rc.sec.why">💡 Waarom</button>
+        <button class="tbtn" data-goto="outro" data-i18n="rc.sec.outro">🎂 Slot</button>
       </div>
     </div>
 
     <!-- scroll: sleep met je vinger -->
     <div class="group">
-      <span class="group__label">scroll — sleep met je vinger ↕</span>
+      <span class="group__label" data-i18n="rc.group.scroll">scroll — sleep met je vinger ↕</span>
       <div class="pad" id="pad">
-        <div class="pad__hint">sleep ↕ om te scrollen<small>klein duwtje = beetje · snelle veeg = veel</small></div>
+        <div class="pad__hint" data-i18n="rc.pad.hint">sleep ↕ om te scrollen<small>klein duwtje = beetje · snelle veeg = veel</small></div>
       </div>
       <div class="nudge">
-        <button class="tbtn" data-page="-1"><span class="em">▲</span> pagina omhoog</button>
-        <button class="tbtn" data-page="1"><span class="em">▼</span> pagina omlaag</button>
+        <button class="tbtn" data-page="-1" data-i18n="rc.page.up"><span class="em">▲</span> pagina omhoog</button>
+        <button class="tbtn" data-page="1" data-i18n="rc.page.down"><span class="em">▼</span> pagina omlaag</button>
       </div>
     </div>
 
     <!-- animatie-triggers -->
     <div class="group">
-      <span class="group__label">animaties &amp; effecten</span>
+      <span class="group__label" data-i18n="rc.group.fx">animaties &amp; effecten</span>
       <div class="btn-grid">
-        <button class="tbtn accent-c" data-cmd="confetti"><span class="em">🎉</span> Confetti</button>
-        <button class="tbtn accent-a" data-cmd="fireworks"><span class="em">🎆</span> Vuurwerk</button>
-        <button class="tbtn accent-m" data-cmd="party"><span class="em">🥳</span> Feest!</button>
-        <button class="tbtn accent-c" data-cmd="warp"><span class="em">🌌</span> Warp</button>
-        <button class="tbtn" data-cmd="shake"><span class="em">💥</span> Shake</button>
-        <button class="tbtn accent-a" data-cmd="reveal"><span class="em">🎁</span> Onthul cadeau</button>
-        <button class="tbtn full" data-cmd="skipBoot"><span class="em">⏭</span> Skip intro</button>
+        <button class="tbtn accent-c" data-cmd="confetti" data-i18n="rc.fx.confetti"><span class="em">🎉</span> Confetti</button>
+        <button class="tbtn accent-a" data-cmd="fireworks" data-i18n="rc.fx.fireworks"><span class="em">🎆</span> Vuurwerk</button>
+        <button class="tbtn accent-m" data-cmd="party" data-i18n="rc.fx.party"><span class="em">🥳</span> Feest!</button>
+        <button class="tbtn accent-c" data-cmd="warp" data-i18n="rc.fx.warp"><span class="em">🌌</span> Warp</button>
+        <button class="tbtn" data-cmd="shake" data-i18n="rc.fx.shake"><span class="em">💥</span> Shake</button>
+        <button class="tbtn accent-a" data-cmd="reveal" data-i18n="rc.fx.reveal"><span class="em">🎁</span> Onthul cadeau</button>
+        <button class="tbtn full" data-cmd="skipBoot" data-i18n="rc.fx.skip"><span class="em">⏭</span> Skip intro</button>
       </div>
     </div>
 
-    <p class="rc__foot" id="foot">verbind met het scherm om te besturen</p>
+    <p class="rc__foot" id="foot" data-i18n="rc.foot.init">verbind met het scherm om te besturen</p>
   </div>
 
+  <script src="js/i18n.js"></script>
   <script src="js/remote.js"></script>
 </body>
 </html>

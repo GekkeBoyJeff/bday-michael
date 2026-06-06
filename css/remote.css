@@ -99,6 +99,30 @@ body {
   text-transform: uppercase;
   margin-top: 0.15rem;
 }
+.rc__head-right {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.rc__lang {
+  display: inline-flex;
+  gap: 2px;
+}
+.rc__lang button {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+.rc__lang button.is-active {
+  color: var(--cyan);
+  border-color: var(--line-bright);
+}
 .rc__status {
   display: inline-flex;
   align-items: center;
