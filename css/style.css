@@ -96,6 +96,11 @@ button {
   border: none;
   cursor: none;
 }
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
 ::selection {
   background: var(--magenta);
   color: #fff;
@@ -1384,5 +1389,190 @@ footer b {
   .scan__line,
   .scroll-cue .bar {
     display: none;
+  }
+}
+
+/* ---------- 19. Remote pairing (tweede-scherm) ---------- */
+.hud__remote {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.9rem;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+}
+.hud__remote:hover {
+  border-color: var(--cyan);
+  background: var(--cyan-soft);
+}
+.hud__remote.is-live {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+.pair {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: grid;
+  place-items: center;
+  padding: var(--s-3);
+  background: rgba(3, 5, 12, 0.82);
+  backdrop-filter: blur(6px);
+}
+.pair[hidden] {
+  display: none;
+}
+.pair__panel {
+  width: min(420px, 100%);
+  text-align: center;
+  position: relative;
+}
+.pair__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--ink-dim);
+  transition: color 0.2s;
+}
+.pair__close:hover {
+  color: var(--magenta);
+}
+.pair__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  margin: var(--s-2) 0 0.4rem;
+}
+.pair__hint {
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+}
+.pair__qr {
+  width: 210px;
+  height: 210px;
+  margin: var(--s-3) auto var(--s-2);
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 10px;
+  display: grid;
+  place-items: center;
+}
+.pair__qr canvas,
+.pair__qr img {
+  width: 190px !important;
+  height: 190px !important;
+  display: block;
+  image-rendering: pixelated;
+}
+.pair__url {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--cyan);
+  word-break: break-all;
+  margin-top: 0.4rem;
+}
+.pair__code {
+  margin-top: var(--s-2);
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+}
+.pair__code b {
+  color: var(--amber);
+  font-size: 1.3rem;
+  letter-spacing: 0.3em;
+}
+.pair__status {
+  margin-top: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+.pair__status.ok {
+  color: var(--cyan);
+}
+.pair__status.err {
+  color: var(--magenta);
+}
+.pair__warn {
+  margin-top: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--amber);
+  border: 1px solid rgba(255, 178, 74, 0.4);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+}
+.pair__warn[hidden] {
+  display: none;
+}
+.pair__warn b {
+  color: var(--ink);
+}
+
+/* ---------- 20. Trigger-effecten (flits + screen shake) ---------- */
+.fx-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 6500;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(42, 245, 224, 0.55),
+    rgba(255, 61, 139, 0.25) 45%,
+    transparent 70%
+  );
+}
+.fx-flash.go {
+  animation: fxFlash 0.55s var(--ease-out);
+}
+@keyframes fxFlash {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+body.fx-shake {
+  animation: fxShake 0.6s linear;
+}
+@keyframes fxShake {
+  10%,
+  90% {
+    transform: translate(-2px, 1px);
+  }
+  20%,
+  80% {
+    transform: translate(3px, -2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate(-5px, 2px);
+  }
+  40%,
+  60% {
+    transform: translate(5px, -1px);
   }
 }

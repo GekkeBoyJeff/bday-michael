@@ -52,6 +52,7 @@
     <span>STATION_MICHAEL</span>
     <span class="hud__clock" id="clock">--:--:--</span>
     <span class="hud__status"><i class="dot"></i> verjaardagsprotocol actief</span>
+    <button class="hud__remote" id="pairBtn" data-hover>⇆ telefoon koppelen</button>
   </header>
 
   <!-- scroll progress -->
@@ -320,6 +321,21 @@
     geen sokken werden geschonken tijdens deze productie &nbsp;•&nbsp;
     <span id="konamiHint">tip: probeer eens ↑↑↓↓←→←→BA</span>
   </footer>
+
+  <!-- ============ REMOTE PAIRING (tweede scherm) ============ -->
+  <div class="pair" id="pairModal" hidden>
+    <div class="pair__panel panel">
+      <button class="pair__close" id="pairClose" data-hover aria-label="sluiten">✕</button>
+      <span class="panel__tag">remote koppelen</span>
+      <h3 class="pair__title">Bedien dit scherm<br />met je telefoon</h3>
+      <p class="pair__hint">Scan met je telefooncamera, of open de link:</p>
+      <div class="pair__qr"><div id="pairQr"></div></div>
+      <a class="pair__url" id="pairUrl" href="#" target="_blank" rel="noopener">…</a>
+      <div class="pair__code">room-code: <b id="pairCode">····</b></div>
+      <p class="pair__warn" id="pairWarn" hidden>⚠ Op <b>localhost</b> of een lokaal bestand kan je telefoon dit niet openen. Zet de site online (GitHub&nbsp;Pages) of serveer 'm op je netwerk-IP.</p>
+      <div class="pair__status" id="pairStatus">● remote-server starten…</div>
+    </div>
+  </div>
 
   <canvas id="confetti"></canvas>
 

@@ -17,6 +17,14 @@ besturingssysteem van dat station is — **LUNA-OS** (_luna_ = maan) — dat ops
 het "verjaardagsprotocol" uit te voeren en het cadeau via een "Lunafilament-reactor"
 te onthullen.
 
+## Multi-device
+
+Op het grote scherm kun je via **"⇆ telefoon koppelen"** (rechtsboven) een QR tonen.
+Scan 'm met een telefoon om die als **afstandsbediening** te gebruiken: scrollen met je
+vinger, naar secties springen en animaties (confetti, vuurwerk, warp, cadeau-reveal) afvuren.
+Werkt peer-to-peer (WebRTC), zonder server — dus alleen als de site **online** staat
+(GitHub Pages) of via je **netwerk-IP**, niet via `localhost`.
+
 ## Bekijken
 
 Open `index.html` in de browser. Online draait het via GitHub Pages.

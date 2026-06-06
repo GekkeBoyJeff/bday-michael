@@ -13,6 +13,7 @@
   const rand  = (a, b) => a + Math.random() * (b - a);
 
   const PALETTE = ["#2af5e0", "#ffb24a", "#ff3d8b", "#8b7bff", "#e9eefb"];
+  let warpUntil = 0; // tijdstip (performance.now) tot wanneer de hyperspace-warp loopt
 
   /* ===========================================================
      1. KLOK (HUD) — leeft in de browser, dus Date is hier prima
@@ -84,22 +85,34 @@
     });
 
     function frame(t) {
+      const warp = warpUntil > t ? clamp((warpUntil - t) / 1600, 0, 1) : 0;
       ctx.clearRect(0, 0, w, h);
       for (const s of stars) {
-        s.y += s.z * 0.25 * dpr;                 // langzame drift
+        const speed = s.z * 0.25 * dpr * (1 + warp * 30); // hyperspace = sneller
+        s.y += speed;
         if (s.y > h) { s.y = 0; s.x = Math.random() * w; }
         const px = s.x + mx * s.z * 26 * dpr;    // parallax
         const py = s.y + my * s.z * 26 * dpr;
         const tw = 0.55 + 0.45 * Math.sin(t / 700 + s.tw);
         ctx.globalAlpha = tw;
-        ctx.fillStyle = s.c;
-        const r = s.z * 1.1 * dpr;
-        ctx.beginPath();
-        ctx.arc(px, py, r, 0, Math.PI * 2);
-        ctx.fill();
+        if (warp > 0.05) {
+          ctx.strokeStyle = s.c;                 // streaks tijdens warp
+          ctx.lineWidth = s.z * 1.1 * dpr;
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px, py - speed * 2.4);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = s.c;
+          const r = s.z * 1.1 * dpr;
+          ctx.beginPath();
+          ctx.arc(px, py, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       ctx.globalAlpha = 1;
-      if (!REDUCED) requestAnimationFrame(frame);
+      // tijdens warp blijven we doorrenderen, ook bij reduced-motion (kort & op verzoek)
+      if (!REDUCED || warp > 0) requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
   })();
@@ -269,6 +282,38 @@
   }
 
   /* ===========================================================
+     9b. EXTRA EFFECTEN — vuurwerk, flits, shake, warp (op verzoek)
+     =========================================================== */
+  const flashEl = document.createElement("div");
+  flashEl.className = "fx-flash";
+  document.body.appendChild(flashEl);
+
+  function fxFlash() {
+    flashEl.classList.remove("go");
+    void flashEl.offsetWidth; // forceer reflow zodat de animatie opnieuw start
+    flashEl.classList.add("go");
+  }
+  function fxFireworks() {
+    // meerdere bursts verspreid in de tijd + ruimte = een echt showtje
+    for (let k = 0; k < 6; k++) {
+      setTimeout(() => confetti.burst(
+        rand(innerWidth * 0.15, innerWidth * 0.85),
+        rand(innerHeight * 0.18, innerHeight * 0.55), 90, 1), k * 200);
+    }
+  }
+  function fxShake() {
+    if (REDUCED) return;
+    document.body.classList.add("fx-shake");
+    glitch($(".hero__name"));
+    setTimeout(() => document.body.classList.remove("fx-shake"), 650);
+  }
+  function fxWarp() {
+    if (REDUCED) { fxFlash(); return; }
+    warpUntil = performance.now() + 1600;
+    fxFlash();
+  }
+
+  /* ===========================================================
      10. GIFT-REVEAL: Lunafilament-reactor → PRAGMATA
      =========================================================== */
   const reactorSteps = [
@@ -281,8 +326,12 @@
     [100,"// VOLTOOID — cadeau gegenereerd:"],
   ];
   let giftDone = false;
-  async function runReactor() {
-    if (giftDone) return; giftDone = true;
+  let reactorBusy = false;
+  async function runReactor(force) {
+    if (reactorBusy) return;          // niet twee keer tegelijk afspelen
+    if (giftDone && !force) return;   // auto-trigger maar 1x; de remote mag herhalen
+    reactorBusy = true;
+    giftDone = true;
     const fill = $("#reactorFill");
     const status = $("#reactorStatus");
     const card = $("#giftCard");
@@ -293,7 +342,17 @@
       status.textContent = reactorSteps[reactorSteps.length - 1][1];
       name.textContent = "PRAGMATA";
       card.classList.add("in");
+      fxFireworks();
+      reactorBusy = false;
       return;
+    }
+
+    // bij een herhaling alles resetten zodat de animatie opnieuw speelt
+    if (force) {
+      card.classList.remove("in");
+      name.textContent = "—";
+      fill.style.width = "0%";
+      void card.offsetWidth; // reflow → transitie + balk spelen opnieuw
     }
 
     const dur = 3200, t0 = performance.now();
@@ -315,7 +374,9 @@
 
     card.classList.add("in");
     await scramble(name, "PRAGMATA", 1200);
-    burstFrom(card, 110);
+    fxFlash();
+    fxFireworks();
+    reactorBusy = false;
   }
   const giftIO = new IntersectionObserver((entries) => {
     for (const e of entries) {
@@ -350,6 +411,223 @@
         if (hint) hint.textContent = "ok, jij nerd. dít is je echte cadeau: nóg meer confetti. 🎉";
         glitch($(".hero__name"));
       }
+    });
+  })();
+
+  /* ===========================================================
+     14. REMOTE — tweede scherm (WebRTC via PeerJS), lazy geladen.
+     De command-bus 'exec' wordt zowel lokaal als door de telefoon gebruikt.
+     =========================================================== */
+  (function remote() {
+    const SECTIONS = ["hero", "dossier", "dilemma", "gift", "why", "outro"];
+    const PEER_PREFIX = "lunaos25-";
+    const heroName = $(".hero__name");
+
+    // vloeiende remote-scroll: zet een doel (0..1) en lerp ernaartoe
+    let scrollTarget = null;
+    (function scrollLoop() {
+      if (scrollTarget !== null) {
+        // behavior:"instant" overschrijft CSS scroll-behavior:smooth, zodat onze
+        // eigen lerp de vloeiendheid bepaalt i.p.v. dat de CSS ertegenin werkt
+        const max = document.documentElement.scrollHeight - innerHeight;
+        const want = clamp(scrollTarget, 0, 1) * max;
+        const cur = window.scrollY;
+        const next = cur + (want - cur) * 0.2;
+        window.scrollTo({ top: next, behavior: "instant" });
+        if (Math.abs(want - next) < 0.5) {
+          window.scrollTo({ top: want, behavior: "instant" });
+          scrollTarget = null;
+        }
+      }
+      requestAnimationFrame(scrollLoop);
+    })();
+
+    // de command-bus — één plek voor alle bestuurbare acties
+    function exec(msg) {
+      if (!msg || typeof msg !== "object") return;
+      switch (msg.t) {
+        case "scroll":
+          scrollTarget = clamp(+msg.p || 0, 0, 1);
+          break;
+        case "scrollBy":
+          // relatieve scroll vanaf het touchpad op de telefoon (instant = direct)
+          scrollTarget = null;
+          window.scrollBy({ top: +msg.dy || 0, behavior: "instant" });
+          break;
+        case "page":
+          scrollTarget = null;
+          window.scrollBy({ top: (msg.dir < 0 ? -1 : 1) * innerHeight * 0.85, behavior: "smooth" });
+          break;
+        case "goto":
+          if (SECTIONS.includes(msg.s)) {
+            scrollTarget = null;
+            const el = document.getElementById(msg.s);
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }
+          break;
+        case "confetti":
+          confetti.burst(innerWidth / 2, innerHeight * 0.45, 170, 1);
+          break;
+        case "party":
+          confetti.rain(190);
+          confetti.burst(innerWidth / 2, innerHeight * 0.6, 150, 1);
+          break;
+        case "glitch":
+          if (heroName) glitch(heroName);
+          break;
+        case "reveal": {
+          scrollTarget = null;
+          const g = document.getElementById("gift");
+          if (g) g.scrollIntoView({ behavior: "smooth" });
+          setTimeout(() => runReactor(true), 650); // force = speel opnieuw af
+          break;
+        }
+        case "fireworks":
+          fxFireworks();
+          break;
+        case "warp":
+          fxWarp();
+          break;
+        case "shake":
+          fxShake();
+          break;
+        case "skipBoot":
+          finishBoot();
+          break;
+      }
+    }
+
+    // room-code (blijft gelijk over reloads); geen verwarrende tekens
+    const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const makeCode = () => Array.from({ length: 4 }, () =>
+      ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join("");
+    let roomCode = "";
+    try { roomCode = localStorage.getItem("luna-room") || ""; } catch (e) {}
+    if (!roomCode) {
+      roomCode = makeCode();
+      try { localStorage.setItem("luna-room", roomCode); } catch (e) {}
+    }
+
+    // lokale command-API (ook handig om te testen): LunaRemote.exec({ t: "party" })
+    window.LunaRemote = { exec: exec, code: () => roomCode };
+
+    // pairing-UI
+    const pairBtn = $("#pairBtn");
+    const modal = $("#pairModal");
+    const closeBtn = $("#pairClose");
+    const statusEl = $("#pairStatus");
+    const codeEl = $("#pairCode");
+    const urlEl = $("#pairUrl");
+    const qrBox = $("#pairQr");
+    const warnEl = $("#pairWarn");
+    let peer = null, started = false;
+    const conns = new Set();
+
+    const remoteUrl = new URL("remote.html?r=" + roomCode, location.href).href;
+    if (codeEl) codeEl.textContent = roomCode;
+    if (urlEl) { urlEl.textContent = remoteUrl; urlEl.href = remoteUrl; }
+
+    // localhost/bestand kan een telefoon niet bereiken → waarschuw vooraf
+    const phoneUnreachable = location.protocol === "file:" ||
+      ["localhost", "127.0.0.1", "0.0.0.0", ""].includes(location.hostname);
+    if (warnEl && phoneUnreachable) warnEl.hidden = false;
+
+    const setStatus = (txt, cls) => {
+      if (!statusEl) return;
+      statusEl.textContent = txt;
+      statusEl.className = "pair__status" + (cls ? " " + cls : "");
+    };
+
+    const loadScript = (src) => new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = res;
+      s.onerror = () => rej(new Error("kon niet laden: " + src));
+      document.head.appendChild(s);
+    });
+
+    async function ensurePeer() {
+      if (started) return;
+      started = true;
+      setStatus("● remote-server starten…");
+
+      // QR (optioneel — de link/code werkt sowieso ook zonder).
+      // Primair: qrcodejs (client-side, niets verlaat het apparaat).
+      // Fallback: externe QR-image-service als de lib niet laadt.
+      if (qrBox) {
+        try {
+          if (typeof window.QRCode === "undefined")
+            await loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js");
+          qrBox.innerHTML = "";
+          new window.QRCode(qrBox, {
+            text: remoteUrl,
+            width: 190,
+            height: 190,
+            colorDark: "#03050c",
+            colorLight: "#ffffff",
+            correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : 1,
+          });
+        } catch (e) {
+          qrBox.innerHTML = '<img alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=4&data=' +
+            encodeURIComponent(remoteUrl) + '">';
+        }
+      }
+
+      // PeerJS
+      try {
+        if (typeof window.Peer === "undefined")
+          await loadScript("https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js");
+      } catch (e) {
+        setStatus("● kon remote-bibliotheek niet laden (geen internet?)", "err");
+        started = false;
+        return;
+      }
+
+      peer = new window.Peer(PEER_PREFIX + roomCode);
+      peer.on("open", () => setStatus("● wachten op je telefoon…"));
+      peer.on("connection", (conn) => {
+        conns.add(conn);
+        conn.on("open", () => {
+          setStatus("● telefoon verbonden ✓", "ok");
+          if (pairBtn) {
+            pairBtn.classList.add("is-live");
+            pairBtn.textContent = "⇆ telefoon verbonden";
+          }
+          try { conn.send({ t: "welcome" }); } catch (e) {}
+        });
+        conn.on("data", (d) => exec(d));
+        conn.on("close", () => {
+          conns.delete(conn);
+          if (conns.size === 0) {
+            setStatus("● telefoon losgekoppeld");
+            if (pairBtn) {
+              pairBtn.classList.remove("is-live");
+              pairBtn.textContent = "⇆ telefoon koppelen";
+            }
+          }
+        });
+      });
+      peer.on("error", (err) => {
+        const type = err && err.type;
+        if (type === "unavailable-id") {
+          // id (tijdelijk) bezet — meestal een eigen stale peer. Zelfde code
+          // behouden (QR blijft geldig) en na een korte pauze in-place opnieuw proberen.
+          try { peer.destroy(); } catch (e) {}
+          started = false;
+          setStatus("● opnieuw proberen…");
+          setTimeout(ensurePeer, 1500);
+        } else if (type !== "peer-unavailable") {
+          setStatus("● verbindingsfout: " + (type || "onbekend"), "err");
+        }
+      });
+    }
+
+    if (pairBtn) pairBtn.addEventListener("click", () => { modal.hidden = false; ensurePeer(); });
+    if (closeBtn) closeBtn.addEventListener("click", () => { modal.hidden = true; });
+    if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) modal.hidden = true; });
+    addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal && !modal.hidden) modal.hidden = true;
     });
   })();
 

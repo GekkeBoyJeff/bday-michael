@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>LUNA-OS // afstandsbediening</title>
+  <meta name="theme-color" content="#03050c" />
+  <meta name="robots" content="noindex" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8E%AE%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/remote.css" />
+</head>
+<body>
+  <div class="rc">
+
+    <header class="rc__head">
+      <div class="rc__brand">LUNA-OS<small>afstandsbediening</small></div>
+      <div class="rc__status is-off" id="status"><span class="dot"></span><span id="statusText">niet verbonden</span></div>
+    </header>
+
+    <!-- room-code (alleen nodig als 'ie niet via QR/link is meegegeven) -->
+    <div class="group" id="roomGroup">
+      <span class="group__label">koppelen met scherm</span>
+      <div class="room">
+        <input id="roomInput" maxlength="4" inputmode="latin" autocapitalize="characters" placeholder="CODE" />
+        <button id="roomBtn">verbind</button>
+      </div>
+    </div>
+
+    <!-- sectie-navigatie -->
+    <div class="group">
+      <span class="group__label">ga naar sectie</span>
+      <div class="btn-grid">
+        <button class="tbtn" data-goto="hero">🚀 Start</button>
+        <button class="tbtn" data-goto="dossier">🛰️ Dossier</button>
+        <button class="tbtn" data-goto="dilemma">⚠️ Dilemma</button>
+        <button class="tbtn" data-goto="gift">🎁 Cadeau</button>
+        <button class="tbtn" data-goto="why">💡 Waarom</button>
+        <button class="tbtn" data-goto="outro">🎂 Slot</button>
+      </div>
+    </div>
+
+    <!-- scroll: sleep met je vinger -->
+    <div class="group">
+      <span class="group__label">scroll — sleep met je vinger ↕</span>
+      <div class="pad" id="pad">
+        <div class="pad__hint">sleep ↕ om te scrollen<small>klein duwtje = beetje · snelle veeg = veel</small></div>
+      </div>
+      <div class="nudge">
+        <button class="tbtn" data-page="-1"><span class="em">▲</span> pagina omhoog</button>
+        <button class="tbtn" data-page="1"><span class="em">▼</span> pagina omlaag</button>
+      </div>
+    </div>
+
+    <!-- animatie-triggers -->
+    <div class="group">
+      <span class="group__label">animaties &amp; effecten</span>
+      <div class="btn-grid">
+        <button class="tbtn accent-c" data-cmd="confetti"><span class="em">🎉</span> Confetti</button>
+        <button class="tbtn accent-a" data-cmd="fireworks"><span class="em">🎆</span> Vuurwerk</button>
+        <button class="tbtn accent-m" data-cmd="party"><span class="em">🥳</span> Feest!</button>
+        <button class="tbtn accent-c" data-cmd="warp"><span class="em">🌌</span> Warp</button>
+        <button class="tbtn" data-cmd="shake"><span class="em">💥</span> Shake</button>
+        <button class="tbtn accent-a" data-cmd="reveal"><span class="em">🎁</span> Onthul cadeau</button>
+        <button class="tbtn full" data-cmd="skipBoot"><span class="em">⏭</span> Skip intro</button>
+      </div>
+    </div>
+
+    <p class="rc__foot" id="foot">verbind met het scherm om te besturen</p>
+  </div>
+
+  <script src="js/remote.js"></script>
+</body>
+</html>

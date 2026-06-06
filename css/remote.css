@@ -1,0 +1,318 @@
+/* =============================================================
+   LUNA-OS // afstandsbediening (tweede scherm)
+   Zelfstandige, lichte controller-styling. Pure CSS.
+   ============================================================= */
+
+:root {
+  --bg-void: #03050c;
+  --bg-deep: #070b18;
+  --bg-panel: rgba(13, 19, 38, 0.72);
+  --ink: #e9eefb;
+  --ink-dim: #93a2c4;
+  --ink-faint: #56668c;
+  --cyan: #2af5e0;
+  --amber: #ffb24a;
+  --magenta: #ff3d8b;
+  --violet: #8b7bff;
+  --line: rgba(124, 162, 224, 0.16);
+  --line-bright: rgba(124, 162, 224, 0.32);
+  --font-display: "Chakra Petch", system-ui, sans-serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+  --radius: 6px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background:
+    radial-gradient(
+      ellipse 90% 50% at 50% -8%,
+      rgba(139, 123, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 80% 50% at 50% 108%,
+      rgba(255, 61, 139, 0.16),
+      transparent 60%
+    ),
+    linear-gradient(180deg, var(--bg-void), var(--bg-deep));
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--magenta);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.rc {
+  width: min(480px, 100%);
+  margin-inline: auto;
+  padding: 1.1rem 1.1rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ---------- header + status ---------- */
+.rc__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--line);
+}
+.rc__brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  font-size: 0.95rem;
+  color: var(--cyan);
+}
+.rc__brand small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  margin-top: 0.15rem;
+}
+.rc__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+.rc__status .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  transition: background 0.3s;
+}
+.rc__status.is-connecting .dot {
+  background: var(--amber);
+  animation: blink 1s steps(1) infinite;
+}
+.rc__status.is-on .dot {
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+.rc__status.is-off .dot {
+  background: var(--magenta);
+}
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* ---------- groep-kaart ---------- */
+.group {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+  backdrop-filter: blur(6px);
+}
+.group__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 0.7rem;
+}
+
+/* ---------- knoppen ---------- */
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.tbtn {
+  appearance: none;
+  border: 1px solid var(--line-bright);
+  border-radius: var(--radius);
+  background: rgba(8, 12, 24, 0.6);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  padding: 0.85rem 0.6rem;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    border-color 0.2s,
+    background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 54px;
+  text-align: center;
+}
+.tbtn:active {
+  transform: scale(0.95);
+  background: var(--cyan);
+  color: var(--bg-void);
+  border-color: var(--cyan);
+}
+.tbtn .em {
+  font-size: 1.1rem;
+}
+.tbtn.full {
+  grid-column: 1 / -1;
+}
+.tbtn.accent-c:active {
+  background: var(--cyan);
+}
+.tbtn.accent-a:active {
+  background: var(--amber);
+}
+.tbtn.accent-m:active {
+  background: var(--magenta);
+  color: #fff;
+}
+
+/* ---------- scroll-touchpad ---------- */
+.pad {
+  position: relative;
+  height: 170px;
+  border: 1px dashed var(--line-bright);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(42, 245, 224, 0.08),
+      transparent 70%
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 22px,
+      rgba(124, 162, 224, 0.06) 22px 23px
+    );
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  overflow: hidden;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.pad.active {
+  border-color: var(--cyan);
+  cursor: grabbing;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(42, 245, 224, 0.16),
+      transparent 70%
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 22px,
+      rgba(42, 245, 224, 0.1) 22px 23px
+    );
+}
+.pad__hint {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  pointer-events: none;
+}
+.pad__hint small {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.64rem;
+  color: var(--ink-faint);
+}
+.nudge {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+
+/* ---------- room-code invoer ---------- */
+.room {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.room input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--amber);
+  background: rgba(8, 12, 24, 0.7);
+  border: 1px solid var(--line-bright);
+  border-radius: var(--radius);
+  padding: 0.7rem;
+}
+.room button {
+  appearance: none;
+  border: 1px solid var(--cyan);
+  background: var(--cyan);
+  color: var(--bg-void);
+  font-family: var(--font-display);
+  font-weight: 600;
+  border-radius: var(--radius);
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+}
+
+.rc__foot {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  margin-top: 0.4rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
