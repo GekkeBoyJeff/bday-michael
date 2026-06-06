@@ -9,6 +9,8 @@
   const $ = (s) => document.querySelector(s);
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const vibrate = (ms) => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+  const L = () => (window.LUNA && window.LUNA.lang) || "nl";
+  const tx = (nl, en) => (L() === "en" ? en : nl);
 
   const statusEl = $("#status");
   const statusText = $("#statusText");
@@ -63,15 +65,15 @@
     conn = peer.connect(PEER_PREFIX + code, { reliable: true, metadata: { from: "remote" } });
     conn.on("open", () => {
       connected = true;
-      setStatus("is-on", "verbonden ✓");
-      foot.textContent = "verbonden met scherm " + code;
+      setStatus("is-on", tx("verbonden ✓", "connected ✓"));
+      foot.textContent = tx("verbonden met scherm ", "connected to screen ") + code;
       roomGroup.style.display = "none";
       vibrate(30);
     });
     conn.on("data", () => { /* 'welcome' van het scherm; verder geen data nodig */ });
     conn.on("close", () => {
       connected = false;
-      setStatus("is-off", "verbinding verbroken");
+      setStatus("is-off", tx("verbinding verbroken", "connection lost"));
       roomGroup.style.display = "";
       scheduleReconnect();
     });
@@ -79,15 +81,15 @@
 
   async function connect(c) {
     code = normCode(c);
-    if (code.length < 4) { setStatus("is-off", "code onvolledig"); return; }
-    setStatus("is-connecting", "verbinden…");
-    foot.textContent = "verbinden met scherm " + code + "…";
+    if (code.length < 4) { setStatus("is-off", tx("code onvolledig", "code incomplete")); return; }
+    setStatus("is-connecting", tx("verbinden…", "connecting…"));
+    foot.textContent = tx("verbinden met scherm ", "connecting to screen ") + code + "…";
 
     try {
       if (typeof window.Peer === "undefined")
         await loadScript("https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js");
     } catch (e) {
-      setStatus("is-off", "geen internet");
+      setStatus("is-off", tx("geen internet", "no internet"));
       return;
     }
 
@@ -97,11 +99,11 @@
     peer.on("error", (err) => {
       const t = err && err.type;
       if (t === "peer-unavailable") {
-        setStatus("is-off", "scherm niet gevonden");
-        foot.textContent = "staat de site open én is er op 'telefoon koppelen' gedrukt?";
+        setStatus("is-off", tx("scherm niet gevonden", "screen not found"));
+        foot.textContent = tx("staat de site open én is er op 'telefoon koppelen' gedrukt?", "is the site open and did you tap 'connect phone'?");
         scheduleReconnect();
       } else {
-        setStatus("is-off", "fout: " + (t || "onbekend"));
+        setStatus("is-off", tx("fout: ", "error: ") + (t || tx("onbekend", "unknown")));
       }
     });
   }
@@ -158,5 +160,13 @@
 
   /* ---------- auto-verbinden als de code via QR/URL kwam ---------- */
   if (code.length === 4) connect(code);
-  else setStatus("is-off", "voer de room-code in");
+  else setStatus("is-off", tx("voer de room-code in", "enter the room code"));
+
+  // bij live taalwissel: ververs de dynamische status/voet-tekst indien verbonden
+  window.addEventListener("luna:lang", () => {
+    if (connected) {
+      setStatus("is-on", tx("verbonden ✓", "connected ✓"));
+      foot.textContent = tx("verbonden met scherm ", "connected to screen ") + code;
+    }
+  });
 })();

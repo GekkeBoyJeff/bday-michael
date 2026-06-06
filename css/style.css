@@ -468,6 +468,10 @@ main {
 .accent-m {
   color: var(--magenta);
 }
+.gloss {
+  color: var(--ink-faint);
+  font-style: italic;
+}
 
 /* ---------- 8. Reveal animation hooks ---------- */
 [data-reveal] {
@@ -1418,6 +1422,30 @@ footer b {
 .hud__remote.is-live {
   color: var(--amber);
   border-color: var(--amber);
+}
+.hud__lang {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 0.4rem;
+}
+.hud__lang button {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  padding: 0.25rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.hud__lang button:hover {
+  color: var(--ink);
+}
+.hud__lang button.is-active {
+  color: var(--cyan);
+  border-color: var(--line-bright);
 }
 
 .pair {

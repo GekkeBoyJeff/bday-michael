@@ -15,6 +15,10 @@
   const PALETTE = ["#2af5e0", "#ffb24a", "#ff3d8b", "#8b7bff", "#e9eefb"];
   let warpUntil = 0; // tijdstip (performance.now) tot wanneer de hyperspace-warp loopt
 
+  // taal-helper — window.LUNA komt uit js/i18n.js (vóór dit script geladen)
+  const L = () => (window.LUNA && window.LUNA.lang) || "nl";
+  const tx = (nl, en) => (L() === "en" ? en : nl);
+
   /* ===========================================================
      1. KLOK (HUD) — leeft in de browser, dus Date is hier prima
      =========================================================== */
@@ -316,15 +320,26 @@
   /* ===========================================================
      10. GIFT-REVEAL: Lunafilament-reactor → PRAGMATA
      =========================================================== */
-  const reactorSteps = [
-    [8,  "// reactor opwarmen…"],
-    [22, "// Lunafilament smelten … 1.400 °C"],
-    [38, "// wenslijst doelwit raadplegen … resultaat: \"ik weet het niet\""],
-    [56, "// alternatief gevonden: 'SSD' / 'RAM' … prijs opvragen …"],
-    [72, "// [ TE DUUR — bedankt, AI ] … broer-algoritme inschakelen"],
-    [88, "// object materialiseren …"],
-    [100,"// VOLTOOID — cadeau gegenereerd:"],
-  ];
+  const reactorStepsByLang = {
+    nl: [
+      [8,  "// reactor opwarmen…"],
+      [22, "// Lunafilament smelten … 1.400 °C"],
+      [38, "// wenslijst doelwit raadplegen … resultaat: \"ik weet het niet\""],
+      [56, "// alternatief gevonden: 'SSD' / 'RAM' … prijs opvragen …"],
+      [72, "// [ TE DUUR — bedankt, AI ] … broer-algoritme inschakelen"],
+      [88, "// object materialiseren …"],
+      [100,"// VOLTOOID — cadeau gegenereerd:"],
+    ],
+    en: [
+      [8,  "// warming up reactor…"],
+      [22, "// melting Lunafilament … 1,400 °C"],
+      [38, "// querying target's wishlist … result: \"I dunno\""],
+      [56, "// alternative found: 'SSD' / 'RAM' … checking price …"],
+      [72, "// [ TOO EXPENSIVE — thanks, AI ] … engaging brother algorithm"],
+      [88, "// materialising object …"],
+      [100,"// DONE — gift generated:"],
+    ],
+  };
   let giftDone = false;
   let reactorBusy = false;
   async function runReactor(force) {
@@ -336,6 +351,7 @@
     const status = $("#reactorStatus");
     const card = $("#giftCard");
     const name = $("#giftName");
+    const reactorSteps = reactorStepsByLang[L()] || reactorStepsByLang.nl;
 
     if (REDUCED) {
       fill.style.width = "100%";
@@ -408,7 +424,7 @@
         confetti.rain(260);
         confetti.burst(innerWidth / 2, innerHeight / 2, 200, 1);
         const hint = $("#konamiHint");
-        if (hint) hint.textContent = "ok, jij nerd. dít is je echte cadeau: nóg meer confetti. 🎉";
+        if (hint) hint.textContent = tx("ok, jij nerd. dít is je echte cadeau: nóg meer confetti. 🎉", "ok, you nerd. THIS is your real gift: even more confetti. 🎉");
         glitch($(".hero__name"));
       }
     });
@@ -550,7 +566,7 @@
     async function ensurePeer() {
       if (started) return;
       started = true;
-      setStatus("● remote-server starten…");
+      setStatus(tx("● remote-server starten…", "● starting remote server…"));
 
       // QR (optioneel — de link/code werkt sowieso ook zonder).
       // Primair: qrcodejs (client-side, niets verlaat het apparaat).
@@ -579,20 +595,20 @@
         if (typeof window.Peer === "undefined")
           await loadScript("https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js");
       } catch (e) {
-        setStatus("● kon remote-bibliotheek niet laden (geen internet?)", "err");
+        setStatus(tx("● kon remote-bibliotheek niet laden (geen internet?)", "● couldn't load remote library (no internet?)"), "err");
         started = false;
         return;
       }
 
       peer = new window.Peer(PEER_PREFIX + roomCode);
-      peer.on("open", () => setStatus("● wachten op je telefoon…"));
+      peer.on("open", () => setStatus(tx("● wachten op je telefoon…", "● waiting for your phone…")));
       peer.on("connection", (conn) => {
         conns.add(conn);
         conn.on("open", () => {
-          setStatus("● telefoon verbonden ✓", "ok");
+          setStatus(tx("● telefoon verbonden ✓", "● phone connected ✓"), "ok");
           if (pairBtn) {
             pairBtn.classList.add("is-live");
-            pairBtn.textContent = "⇆ telefoon verbonden";
+            pairBtn.textContent = tx("⇆ telefoon verbonden", "⇆ phone connected");
           }
           try { conn.send({ t: "welcome" }); } catch (e) {}
         });
@@ -600,10 +616,10 @@
         conn.on("close", () => {
           conns.delete(conn);
           if (conns.size === 0) {
-            setStatus("● telefoon losgekoppeld");
+            setStatus(tx("● telefoon losgekoppeld", "● phone disconnected"));
             if (pairBtn) {
               pairBtn.classList.remove("is-live");
-              pairBtn.textContent = "⇆ telefoon koppelen";
+              pairBtn.textContent = tx("⇆ telefoon koppelen", "⇆ connect phone");
             }
           }
         });
@@ -615,13 +631,18 @@
           // behouden (QR blijft geldig) en na een korte pauze in-place opnieuw proberen.
           try { peer.destroy(); } catch (e) {}
           started = false;
-          setStatus("● opnieuw proberen…");
+          setStatus(tx("● opnieuw proberen…", "● retrying…"));
           setTimeout(ensurePeer, 1500);
         } else if (type !== "peer-unavailable") {
-          setStatus("● verbindingsfout: " + (type || "onbekend"), "err");
+          setStatus(tx("● verbindingsfout: ", "● connection error: ") + (type || tx("onbekend", "unknown")), "err");
         }
       });
     }
+
+    // bij live taalwissel: werk de (dynamische) verbonden-knoptekst bij
+    window.addEventListener("luna:lang", () => {
+      if (conns.size && pairBtn) pairBtn.textContent = tx("⇆ telefoon verbonden", "⇆ phone connected");
+    });
 
     if (pairBtn) pairBtn.addEventListener("click", () => { modal.hidden = false; ensurePeer(); });
     if (closeBtn) closeBtn.addEventListener("click", () => { modal.hidden = true; });
@@ -634,17 +655,31 @@
   /* ===========================================================
      13. BOOT-SEQUENCE
      =========================================================== */
-  const bootLines = [
-    { pre: "> LUNA-OS v25.0 // verjaardagskernel laden ", tok: "[ OK ]", cls: "ok" },
-    { pre: "> verbinding met STATION_MICHAEL ", tok: "[ OK ]", cls: "ok" },
-    { pre: "> subject identificeren … ", tok: "MICHAEL ULLERS", cls: "ok" },
-    { pre: "> leeftijd synchroniseren … 24 → 25 ", tok: "[ OK ]", cls: "ok" },
-    { pre: "> cadeauvoorkeuren ophalen … ", tok: "[ FOUT 404 ]", cls: "err" },
-    { pre: "  └─ ontvangen input: \"eh… dinges\". parser geeft het op.", tok: "", cls: "warn", line: "warn" },
-    { pre: "> noodprotocol \"BROER BESLIST\" activeren ", tok: "[ OK ]", cls: "ok" },
-    { pre: "> Lunafilament-reactor voorverwarmen ", tok: "[ OK ]", cls: "ok" },
-    { pre: "> systeem gereed. veel plezier — en doe rustig met scrollen. ", tok: "", cls: "ok" },
-  ];
+  const bootLinesByLang = {
+    nl: [
+      { pre: "> LUNA-OS v25.0 // verjaardagskernel laden ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> verbinding met STATION_MICHAEL ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> subject identificeren … ", tok: "MICHAEL ULLERS", cls: "ok" },
+      { pre: "> leeftijd synchroniseren … 24 → 25 ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> cadeauvoorkeuren ophalen … ", tok: "[ FOUT 404 ]", cls: "err" },
+      { pre: "  └─ ontvangen input: \"eh… dinges\". parser geeft het op.", tok: "", cls: "warn", line: "warn" },
+      { pre: "> noodprotocol \"BROER BESLIST\" activeren ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> Lunafilament-reactor voorverwarmen ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> systeem gereed. veel plezier — en doe rustig met scrollen. ", tok: "", cls: "ok" },
+    ],
+    en: [
+      { pre: "> LUNA-OS v25.0 // loading birthday kernel ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> connecting to STATION_MICHAEL ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> identifying subject … ", tok: "MICHAEL ULLERS", cls: "ok" },
+      { pre: "> syncing age … 24 → 25 ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> fetching gift preferences … ", tok: "[ ERROR 404 ]", cls: "err" },
+      { pre: "  └─ received input: \"uh… dinges\". parser gives up.", tok: "", cls: "warn", line: "warn" },
+      { pre: "> activating emergency protocol \"BROTHER DECIDES\" ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> preheating Lunafilament reactor ", tok: "[ OK ]", cls: "ok" },
+      { pre: "> system ready. enjoy — and take your time scrolling. ", tok: "", cls: "ok" },
+    ],
+  };
+  const bootLines = bootLinesByLang[L()] || bootLinesByLang.nl;
 
   const boot = $("#boot");
   const log = $("#bootLog");
